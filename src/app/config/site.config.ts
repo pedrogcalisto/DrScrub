@@ -10,6 +10,13 @@ function mediaFile(filename: string): string {
 }
 
 export const SITE_CONFIG = {
+  /**
+   * Bump this when you ship (e.g. 1.1) so you can confirm the live build matches.
+   * Shown fixed bottom-right on the site.
+   */
+  appVersion: '1.0',
+  /** Shown with the build badge (bottom-right). */
+  creditName: 'Pedro Calisto',
   brand: 'Dr. Scrub',
   /** Full geography for body copy (always include country). */
   serviceArea: 'New England, United States',

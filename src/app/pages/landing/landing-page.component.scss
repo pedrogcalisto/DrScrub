@@ -1127,6 +1127,41 @@ code {
   }
 }
 
+.app-build-meta {
+  position: fixed;
+  right: max(0.75rem, env(safe-area-inset-right));
+  bottom: max(0.5rem, env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.35rem 0.55rem;
+  border-radius: 0.4rem;
+  background: rgba(8, 8, 10, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  user-select: none;
+}
+
+.app-version {
+  margin: 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(244, 244, 242, 0.45);
+}
+
+.app-credit {
+  margin: 0;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(244, 244, 242, 0.32);
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] {
     opacity: 1;

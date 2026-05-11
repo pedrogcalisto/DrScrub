@@ -296,3 +296,14 @@
     </div>
   </footer>
 </main>
+
+<div
+  class="app-build-meta"
+  [attr.title]="
+    'Release v' + site.appVersion + ' · ' + site.creditName + '. Bump appVersion in site.config.ts when you deploy.'
+  "
+  [attr.aria-label]="'Site version ' + site.appVersion + ', ' + site.creditName"
+>
+  <span class="app-version">v{{ site.appVersion }}</span>
+  <span class="app-credit">{{ site.creditName }}</span>
+</div>
