@@ -311,28 +311,26 @@
     </div>
     <div class="shell footer__bar">
       <p class="footer__legal">© {{ year }} {{ site.brand }}. Crafted for high-traffic shine.</p>
-      <a class="footer__top" href="#top" (click)="onBackToTop($event)">Back to top</a>
+      <button type="button" class="footer__top" (click)="onBackToTop($event)">Back to top</button>
     </div>
   </footer>
 </main>
 
 <div
-  class="back-to-top-fx"
-  [class.back-to-top-fx--on]="backToTopFx()"
+  class="scroll-lottie"
+  [class.scroll-lottie--visible]="scrollLottieVisible()"
   aria-hidden="true"
 >
-  <div class="back-to-top-fx__sheen"></div>
-  <div class="back-to-top-fx__squeegee">
-    <span class="back-to-top-fx__handle"></span>
-    <span class="back-to-top-fx__pad"></span>
-  </div>
+  <div #lottieScroll class="scroll-lottie__inner"></div>
+</div>
+
+<div class="back-to-top-fx" [class.back-to-top-fx--on]="backToTopFx()" aria-hidden="true">
+  <div #lottieBackTop class="back-to-top-fx__lottie"></div>
 </div>
 
 <div
   class="app-build-meta"
-  [attr.title]="
-    'Release v' + site.appVersion + ' · ' + site.creditName + '. Bump appVersion in site.config.ts when you deploy.'
-  "
+  [attr.title]="'Release v' + site.appVersion + ' · ' + site.creditName"
   [attr.aria-label]="'Site version ' + site.appVersion + ', ' + site.creditName"
 >
   <span class="app-version">v{{ site.appVersion }}</span>

@@ -56,6 +56,11 @@
                 "glob": "**/*",
                 "input": "src/app/img",
                 "output": "/media"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/app/animation",
+                "output": "/animation"
               }
             ],
             "styles": [
@@ -120,6 +125,11 @@
                 "glob": "**/*",
                 "input": "src/app/img",
                 "output": "/media"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/app/animation",
+                "output": "/animation"
               }
             ],
             "styles": [
