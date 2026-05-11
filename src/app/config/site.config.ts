@@ -14,7 +14,7 @@ export const SITE_CONFIG = {
    * Increment when you change code and deploy (e.g. 1.1 → 1.2) so the live site shows the new build.
    * Shown bottom-right as `v…`.
    */
-  appVersion: '1.3',
+  appVersion: '1.4',
   /** Shown with the build badge (bottom-right). */
   creditName: 'Pedro Calisto',
   brand: 'Dr. Scrub',
