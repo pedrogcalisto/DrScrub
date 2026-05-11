@@ -4,7 +4,6 @@ import {
   DestroyRef,
   ElementRef,
   HostListener,
-  NgZone,
   afterNextRender,
   computed,
   inject,
@@ -85,7 +84,6 @@ import { SITE_CONFIG } from '../../config/site.config';
 export class LandingPageComponent {
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
 
   readonly site = SITE_CONFIG;
   readonly year = new Date().getFullYear();
@@ -108,7 +106,6 @@ export class LandingPageComponent {
 
   private readonly heroMedia = viewChild<ElementRef<HTMLElement>>('heroMedia');
   private readonly lottieBackTop = viewChild<ElementRef<HTMLElement>>('lottieBackTop');
-  private readonly lottieScroll = viewChild<ElementRef<HTMLElement>>('lottieScroll');
 
   readonly showMakeVideo = computed(() => !!SITE_CONFIG.media.videoMake?.trim());
   readonly showDoneVideo = computed(() => !!SITE_CONFIG.media.videoDone?.trim());
@@ -118,68 +115,23 @@ export class LandingPageComponent {
   readonly doneVideoReady = signal(false);
 
   readonly backToTopFx = signal(false);
-  readonly scrollLottieVisible = signal(false);
   private backToTopFxTimer: ReturnType<typeof setTimeout> | undefined;
   private lottieInstance: AnimationItem | undefined;
-  private scrollHintAnim: AnimationItem | undefined;
-  private scrollHintDomReady = false;
-  private scrollHintHideTimer: ReturnType<typeof setTimeout> | undefined;
-  private scrollHintEnsureAttempts = 0;
-  private scrollHintRaf = 0;
   private scrollRafId = 0;
 
   constructor() {
     afterNextRender(() => {
       this.initScrollReveals(this.host.nativeElement);
       this.applyHeroParallax();
-      this.warmScrollHintAfterRender();
-      this.attachGlobalScrollActivityListeners();
     });
     this.destroyRef.onDestroy(() => {
       if (this.scrollRafId !== 0) {
         cancelAnimationFrame(this.scrollRafId);
       }
-      if (this.scrollHintRaf !== 0) {
-        cancelAnimationFrame(this.scrollHintRaf);
-      }
       if (this.backToTopFxTimer !== undefined) {
         window.clearTimeout(this.backToTopFxTimer);
       }
       this.destroyLottie();
-      this.destroyScrollHintLottie();
-      this.detachGlobalScrollActivityListeners();
-    });
-  }
-
-  private scrollActivityCleanups: Array<() => void> = [];
-
-  private attachGlobalScrollActivityListeners(): void {
-    const onTouchMove = (): void => this.scheduleScrollHintUpdate();
-    const onScrollCapture = (): void => this.scheduleScrollHintUpdate();
-
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
-    document.addEventListener('scroll', onScrollCapture, { capture: true, passive: true });
-
-    this.scrollActivityCleanups.push(() => window.removeEventListener('touchmove', onTouchMove));
-    this.scrollActivityCleanups.push(() => document.removeEventListener('scroll', onScrollCapture, true));
-  }
-
-  private detachGlobalScrollActivityListeners(): void {
-    this.scrollActivityCleanups.forEach((fn) => fn());
-    this.scrollActivityCleanups = [];
-  }
-
-  private scheduleScrollHintUpdate(): void {
-    if (this.scrollHintRaf !== 0) return;
-    this.scrollHintRaf = requestAnimationFrame(() => {
-      this.scrollHintRaf = 0;
-      this.ngZone.run(() => this.onUserScrollHint());
-    });
-  }
-
-  private warmScrollHintAfterRender(): void {
-    requestAnimationFrame(() => {
-      this.ensureScrollHintLottie();
     });
   }
 
@@ -187,12 +139,6 @@ export class LandingPageComponent {
   onWindowScroll(): void {
     this.scrolled.set(window.scrollY > 24);
     this.applyHeroParallax();
-    this.scheduleScrollHintUpdate();
-  }
-
-  @HostListener('window:wheel')
-  onWindowWheel(): void {
-    this.scheduleScrollHintUpdate();
   }
 
   @HostListener('window:pointerup')
@@ -254,11 +200,6 @@ export class LandingPageComponent {
       cancelAnimationFrame(this.scrollRafId);
       this.scrollRafId = 0;
     }
-    if (this.scrollHintHideTimer !== undefined) {
-      window.clearTimeout(this.scrollHintHideTimer);
-      this.scrollHintHideTimer = undefined;
-    }
-    this.scrollLottieVisible.set(false);
 
     const scrollMs = 1350;
     const overlayMs = 1580;
@@ -348,100 +289,6 @@ export class LandingPageComponent {
     };
 
     this.scrollRafId = requestAnimationFrame(step);
-  }
-
-  private onUserScrollHint(): void {
-    if (this.backToTopFx()) return;
-
-    this.ensureScrollHintLottie();
-    this.playScrollHintScrub();
-    this.scrollLottieVisible.set(true);
-
-    if (this.scrollHintHideTimer !== undefined) {
-      window.clearTimeout(this.scrollHintHideTimer);
-    }
-    this.scrollHintHideTimer = window.setTimeout(() => {
-      this.scrollLottieVisible.set(false);
-      const a = this.scrollHintAnim;
-      if (a && this.scrollHintDomReady) {
-        a.pause();
-      }
-      this.scrollHintHideTimer = undefined;
-    }, 900);
-  }
-
-  private ensureScrollHintLottie(): void {
-    if (this.scrollHintAnim) return;
-    const el = this.lottieScroll()?.nativeElement;
-    if (!el) {
-      if (this.scrollHintEnsureAttempts < 40) {
-        this.scrollHintEnsureAttempts += 1;
-        requestAnimationFrame(() => this.ensureScrollHintLottie());
-      }
-      return;
-    }
-    this.scrollHintEnsureAttempts = 0;
-
-    const anim = lottie.loadAnimation({
-      container: el,
-      renderer: 'svg',
-      loop: true,
-      autoplay: false,
-      animationData: cleaningYellowHand as unknown as Record<string, unknown>,
-    });
-    this.scrollHintAnim = anim;
-
-    const markReady = (): void => {
-      if (!this.scrollHintAnim || anim.totalFrames <= 0) return;
-      this.scrollHintDomReady = true;
-      anim.pause();
-      anim.goToAndStop(0, true);
-    };
-
-    anim.addEventListener('DOMLoaded', markReady);
-    queueMicrotask(markReady);
-    requestAnimationFrame(markReady);
-
-    let polls = 0;
-    const poll = (): void => {
-      if (!this.scrollHintAnim || this.scrollHintDomReady || polls > 45) return;
-      polls += 1;
-      if (anim.totalFrames > 0) {
-        markReady();
-      } else {
-        requestAnimationFrame(poll);
-      }
-    };
-    requestAnimationFrame(poll);
-  }
-
-  private playScrollHintScrub(): void {
-    const anim = this.scrollHintAnim;
-    if (!anim || !this.scrollHintDomReady) return;
-    const naturalSec = anim.getDuration(false);
-    if (naturalSec > 0) {
-      anim.setSpeed(0.72);
-    }
-    anim.play();
-  }
-
-  private destroyScrollHintLottie(): void {
-    if (this.scrollHintHideTimer !== undefined) {
-      window.clearTimeout(this.scrollHintHideTimer);
-      this.scrollHintHideTimer = undefined;
-    }
-    if (this.scrollHintAnim) {
-      try {
-        this.scrollHintAnim.destroy();
-      } catch {}
-      this.scrollHintAnim = undefined;
-    }
-    this.scrollHintDomReady = false;
-    const el = this.lottieScroll()?.nativeElement;
-    if (el) {
-      el.replaceChildren();
-    }
-    this.scrollLottieVisible.set(false);
   }
 
   private updateCompareFromClientX(clientX: number): void {

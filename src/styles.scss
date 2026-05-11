@@ -70,10 +70,6 @@ img {
   height: auto !important;
 }
 
-.scroll-lottie {
-  z-index: 2147482000 !important;
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -88,7 +84,4 @@ img {
     scroll-behavior: auto !important;
   }
 
-  .scroll-lottie {
-    transition-duration: 0.25s !important;
-  }
 }

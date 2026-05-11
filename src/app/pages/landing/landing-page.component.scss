@@ -1192,37 +1192,6 @@ code {
   }
 }
 
-.scroll-lottie {
-  --scroll-lottie-w: min(200px, 46vw);
-
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  z-index: 2147482000;
-  width: var(--scroll-lottie-w);
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.35s ease;
-  filter: drop-shadow(0 14px 36px rgba(0, 0, 0, 0.55));
-
-  &--visible {
-    opacity: 1;
-  }
-}
-
-.scroll-lottie__inner {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.scroll-lottie__inner svg {
-  width: 100% !important;
-  height: auto !important;
-}
-
 .app-build-meta {
   position: fixed;
   right: max(0.75rem, env(safe-area-inset-right));

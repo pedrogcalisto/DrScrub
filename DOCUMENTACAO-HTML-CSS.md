@@ -10,7 +10,7 @@ Este documento descreve a estrutura da página única (landing) e onde cada esti
 - **Layout**: largura máxima e margens horizontais via classe utilitária `.shell` (aprox. 1180px, com `calc(100% - 3rem)`).
 - **Tema**: modo escuro; variáveis CSS globais em `:root` (`--font-body`, `--font-display`, `--bg-deep`, `--text`).
 - **Revelar ao scroll**: elementos com `data-reveal` começam desfocados e deslocados; a classe `.is-revealed` (adicionada por TypeScript) anima opacidade, `translateY` e `blur`. Atraso opcional com `data-reveal-delay`.
-- **Lottie**: animação “mão a limpar” (`Cleaning Yellow Hand.json`) — overlay de “voltar ao topo” (`.back-to-top-fx`, estilos em `styles.scss`) e dica durante o scroll (`.scroll-lottie`, no SCSS do componente).
+- **Lottie**: animação “mão a limpar” (`Cleaning Yellow Hand.json`) apenas no overlay de “voltar ao topo” (`.back-to-top-fx`, estilos em `styles.scss`).
 
 ---
 
@@ -61,8 +61,7 @@ Este documento descreve a estrutura da página única (landing) e onde cada esti
 
 ### Overlays e meta de build
 
-- **`.scroll-lottie`**: contentor fixo centrado no ecrã; visível com **`.scroll-lottie--visible`**. **`.scroll-lottie__inner`** envolve o SVG injetado pelo Lottie (sem máscara circular — só sombra projetada).
-- **`.back-to-top-fx`**: fullscreen com fundo semitransparente e blur; **`.back-to-top-fx--on`** mostra o overlay; **`.back-to-top-fx__lottie`** dimensiona a animação (definido em `styles.scss` para ficar acima de tudo).
+- **`.back-to-top-fx`**: fullscreen com fundo semitransparente e blur; **`.back-to-top-fx--on`** mostra o overlay; **`.back-to-top-fx__lottie`** dimensiona a animação Lottie (definido em `styles.scss` para ficar acima de tudo).
 - **`.app-build-meta`**: canto inferior direito, versão (`site.appVersion`) e crédito; `title` e `aria-label` dinâmicos.
 
 ---
@@ -74,8 +73,7 @@ Este documento descreve a estrutura da página única (landing) e onde cada esti
 - **`:root`**: `color-scheme: dark`, fontes, cores de fundo e texto.
 - **`html` / `body`**: scroll suave (respeitando `prefers-reduced-motion`), tipografia base, seleção de texto.
 - **`.back-to-top-fx`***: overlay full-screen, z-index muito alto, transição de opacidade; **`.back-to-top-fx__lottie`** força largura máxima do SVG.
-- **`.scroll-lottie`**: apenas reforço de `z-index` global (o layout detalhado está no SCSS do componente).
-- **`@media (prefers-reduced-motion: reduce)`**: desativa `scroll-behavior: smooth`, comprime durações de animação/transição globalmente e suaviza a transição do hint de scroll.
+- **`@media (prefers-reduced-motion: reduce)`**: desativa `scroll-behavior: smooth` e comprime durações de animação/transição globalmente.
 
 ### `landing-page.component.scss` (encapsulado ao host)
 
@@ -88,7 +86,7 @@ Este documento descreve a estrutura da página única (landing) e onde cada esti
 
 ### Interação TypeScript relevante para o layout
 
-- **Scroll**: `scrolled()` compacta o header; `comparePosition` e pointer events controlam o slider; `data-reveal` recebe `is-revealed` com `IntersectionObserver`.
+- **Scroll**: `scrolled()` compacta o header; `comparePosition` e pointer events controlam o slider; `data-reveal` recebe `is-revealed` com `IntersectionObserver`. O Lottie só é usado em `onBackToTop` (overlay + scroll suave).
 - **Menu**: `menuOpen()` alterna **`.nav--open`**.
 - **Vídeos**: `lockVideoMuted` mantém `muted` nos elementos `<video>`.
 
