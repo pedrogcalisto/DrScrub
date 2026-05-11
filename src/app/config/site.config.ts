@@ -14,7 +14,7 @@ export const SITE_CONFIG = {
    * Increment when you change code and deploy (e.g. 1.1 → 1.2) so the live site shows the new build.
    * Shown bottom-right as `v…`.
    */
-  appVersion: '1.1',
+  appVersion: '1.3',
   /** Shown with the build badge (bottom-right). */
   creditName: 'Pedro Calisto',
   brand: 'Dr. Scrub',
@@ -42,6 +42,17 @@ export const SITE_CONFIG = {
     },
   ],
   markets: ['Commercial', 'Residential'],
+  /**
+   * U.S. business contact (country code +1 / NANP).
+   * Replace placeholders with your real email and mobile before going live.
+   */
+  contact: {
+    email: 'hello@drscrub.example',
+    /** Shown on the page, e.g. +1 (area) exchange-number */
+    phoneDisplay: '+1 (617) 555-0123',
+    /** E.164 for tel: and sms: (required for tap-to-call and Messages/SMS) */
+    phoneE164: '+16175550123',
+  },
   clients: [
     'AutoZone',
     'Ocean State Job Lot',

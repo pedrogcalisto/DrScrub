@@ -35,6 +35,104 @@ img {
   color: #fff;
 }
 
+/**
+ * Back-to-top “squeegee” overlay — global (not component-scoped) so `position: fixed`
+ * always covers the viewport and stacks above the sticky header (`z-index` in the millions).
+ */
+.back-to-top-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+
+  &--on {
+    opacity: 1;
+    visibility: visible;
+
+    .back-to-top-fx__sheen {
+      animation: back-to-top-sheen 1.15s cubic-bezier(0.33, 0.9, 0.4, 1) forwards;
+    }
+
+    .back-to-top-fx__squeegee {
+      animation: back-to-top-scrub 1.15s cubic-bezier(0.33, 0.9, 0.4, 1) forwards;
+    }
+  }
+}
+
+.back-to-top-fx__sheen {
+  position: absolute;
+  left: -5%;
+  width: 110%;
+  height: 45vh;
+  bottom: -20vh;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.14) 35%,
+    rgba(255, 178, 32, 0.08) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  filter: blur(2px);
+  transform: translateY(110vh);
+  opacity: 0;
+}
+
+.back-to-top-fx__squeegee {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(200px, 42vw);
+  transform: translate(-50%, calc(100vh + 60px));
+}
+
+.back-to-top-fx__handle {
+  width: 44%;
+  height: 10px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #3a3a3e, #1a1a1c);
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.06) inset;
+  margin-bottom: 4px;
+}
+
+.back-to-top-fx__pad {
+  width: 100%;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #ff8c32, #ff6a00 45%, #c24100);
+  box-shadow:
+    0 8px 28px rgba(255, 106, 0, 0.45),
+    0 0 0 1px rgba(0, 0, 0, 0.25) inset;
+}
+
+@keyframes back-to-top-scrub {
+  0% {
+    transform: translate(-50%, calc(100vh + 60px));
+  }
+  100% {
+    transform: translate(-50%, calc(-100% - 24px));
+  }
+}
+
+@keyframes back-to-top-sheen {
+  0% {
+    transform: translateY(110vh);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-130vh);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -47,5 +145,28 @@ img {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Keep overlay visible without motion (global * shortens all animations). */
+  .back-to-top-fx--on .back-to-top-fx__sheen,
+  .back-to-top-fx--on .back-to-top-fx__squeegee {
+    animation: none !important;
+  }
+
+  .back-to-top-fx--on .back-to-top-fx__squeegee {
+    top: max(0.65rem, env(safe-area-inset-top));
+    bottom: auto;
+    transform: translate(-50%, 0);
+  }
+
+  .back-to-top-fx--on .back-to-top-fx__sheen {
+    top: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: min(22vh, 200px);
+    transform: translateY(0);
+    opacity: 0.42;
+    filter: blur(1px);
   }
 }

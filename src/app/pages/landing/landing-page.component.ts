@@ -85,6 +85,19 @@ export class LandingPageComponent {
 
   readonly site = SITE_CONFIG;
   readonly year = new Date().getFullYear();
+
+  /** mailto: with a clear subject line for quote requests */
+  readonly mailtoQuoteHref = `mailto:${SITE_CONFIG.contact.email}?subject=${encodeURIComponent('Dr. Scrub — Quote request')}`;
+
+  readonly telHref = `tel:${SITE_CONFIG.contact.phoneE164}`;
+
+  /**
+   * Opens Messages (iPhone will use iMessage when this number/Apple ID supports it) or the default SMS app.
+   * `&body=` matches iOS expectations; Android clients generally accept it too.
+   */
+  readonly smsQuoteHref = `sms:${SITE_CONFIG.contact.phoneE164}&body=${encodeURIComponent(
+    `Hi ${SITE_CONFIG.brand} — I'd like a quote for floor care in ${SITE_CONFIG.serviceAreaShort}.`,
+  )}`;
   readonly marqueeItems = [...SITE_CONFIG.clients, ...SITE_CONFIG.clients];
 
   readonly scrolled = signal(false);
@@ -171,24 +184,21 @@ export class LandingPageComponent {
   onBackToTop(event: Event): void {
     event.preventDefault();
     const target = document.getElementById('top');
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      target?.scrollIntoView({ block: 'start' });
-      history.replaceState(null, '', '#top');
-      return;
-    }
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     this.backToTopFx.set(true);
     if (this.backToTopFxTimer !== undefined) {
       window.clearTimeout(this.backToTopFxTimer);
     }
 
-    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    target?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
     history.replaceState(null, '', '#top');
 
+    const hideAfterMs = reducedMotion ? 600 : 1250;
     this.backToTopFxTimer = window.setTimeout(() => {
       this.backToTopFx.set(false);
       this.backToTopFxTimer = undefined;
-    }, 1250);
+    }, hideAfterMs);
   }
 
   private updateCompareFromClientX(clientX: number): void {
