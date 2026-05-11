@@ -199,9 +199,12 @@
                     controls
                     playsinline
                     muted
+                    defaultMuted
                     preload="metadata"
-                    title="Dr. Scrub — on-site floor care process (muted)"
-                    (loadeddata)="onMakeVideoLoaded()"
+                    title="Dr. Scrub — on-site floor care process (no audio)"
+                    (loadeddata)="onMakeVideoLoaded(); lockVideoMuted($event)"
+                    (play)="lockVideoMuted($event)"
+                    (volumechange)="lockVideoMuted($event)"
                   >
                     Your browser does not support HTML5 video.
                   </video>
@@ -216,9 +219,12 @@
                     controls
                     playsinline
                     muted
+                    defaultMuted
                     preload="metadata"
-                    title="Dr. Scrub — completed floor finish (muted)"
-                    (loadeddata)="onDoneVideoLoaded()"
+                    title="Dr. Scrub — completed floor finish (no audio)"
+                    (loadeddata)="onDoneVideoLoaded(); lockVideoMuted($event)"
+                    (play)="lockVideoMuted($event)"
+                    (volumechange)="lockVideoMuted($event)"
                   >
                     Your browser does not support HTML5 video.
                   </video>
@@ -294,10 +300,22 @@
     </div>
     <div class="shell footer__bar">
       <p class="footer__legal">© {{ year }} {{ site.brand }}. Crafted for high-traffic shine.</p>
-      <a class="footer__top" href="#top">Back to top</a>
+      <a class="footer__top" href="#top" (click)="onBackToTop($event)">Back to top</a>
     </div>
   </footer>
 </main>
+
+<div
+  class="back-to-top-fx"
+  [class.back-to-top-fx--on]="backToTopFx()"
+  aria-hidden="true"
+>
+  <div class="back-to-top-fx__sheen"></div>
+  <div class="back-to-top-fx__squeegee">
+    <span class="back-to-top-fx__handle"></span>
+    <span class="back-to-top-fx__pad"></span>
+  </div>
+</div>
 
 <div
   class="app-build-meta"

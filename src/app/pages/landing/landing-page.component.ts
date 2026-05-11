@@ -103,6 +103,10 @@ export class LandingPageComponent {
   readonly makeVideoReady = signal(false);
   readonly doneVideoReady = signal(false);
 
+  /** Squeegee wipe overlay when using “Back to top”. */
+  readonly backToTopFx = signal(false);
+  private backToTopFxTimer: ReturnType<typeof setTimeout> | undefined;
+
   constructor() {
     afterNextRender(() => {
       this.initScrollReveals(this.host.nativeElement);
@@ -151,6 +155,40 @@ export class LandingPageComponent {
 
   onDoneVideoLoaded(): void {
     this.doneVideoReady.set(true);
+  }
+
+  /** Keeps videos silent even if the user tries to unmute via native controls. */
+  lockVideoMuted(event: Event): void {
+    const v = event.target;
+    if (!(v instanceof HTMLVideoElement)) return;
+    queueMicrotask(() => {
+      v.muted = true;
+      v.volume = 0;
+      v.defaultMuted = true;
+    });
+  }
+
+  onBackToTop(event: Event): void {
+    event.preventDefault();
+    const target = document.getElementById('top');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      target?.scrollIntoView({ block: 'start' });
+      history.replaceState(null, '', '#top');
+      return;
+    }
+
+    this.backToTopFx.set(true);
+    if (this.backToTopFxTimer !== undefined) {
+      window.clearTimeout(this.backToTopFxTimer);
+    }
+
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    history.replaceState(null, '', '#top');
+
+    this.backToTopFxTimer = window.setTimeout(() => {
+      this.backToTopFx.set(false);
+      this.backToTopFxTimer = undefined;
+    }, 1250);
   }
 
   private updateCompareFromClientX(clientX: number): void {

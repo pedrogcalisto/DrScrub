@@ -11,10 +11,10 @@ function mediaFile(filename: string): string {
 
 export const SITE_CONFIG = {
   /**
-   * Bump this when you ship (e.g. 1.1) so you can confirm the live build matches.
-   * Shown fixed bottom-right on the site.
+   * Increment when you change code and deploy (e.g. 1.1 → 1.2) so the live site shows the new build.
+   * Shown bottom-right as `v…`.
    */
-  appVersion: '1.0',
+  appVersion: '1.1',
   /** Shown with the build badge (bottom-right). */
   creditName: 'Pedro Calisto',
   brand: 'Dr. Scrub',
