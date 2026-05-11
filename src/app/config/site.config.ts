@@ -1,9 +1,12 @@
 /**
- * Media in `src/app/img/` → served at `/media/<filename>` (see `angular.json` assets).
- * Filenames with spaces are URL-encoded automatically.
+ * Media in `src/app/img/` → built into `media/<filename>` (see `angular.json` assets).
+ *
+ * Use a path **without** a leading slash so it respects `<base href>` on GitHub Pages
+ * (e.g. site at /DrScrub.github.io/). A root path like `/media/...` would load from
+ * https://user.github.io/media/... and break images/videos.
  */
 function mediaFile(filename: string): string {
-  return `/media/${encodeURIComponent(filename)}`;
+  return `media/${encodeURIComponent(filename)}`;
 }
 
 export const SITE_CONFIG = {
