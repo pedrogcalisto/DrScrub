@@ -1,0 +1,298 @@
+<header
+  class="site-header"
+  [ngClass]="{ 'site-header--dense': scrolled() }"
+  role="banner"
+>
+  <div class="shell site-header__inner">
+    <a class="brand" href="#top" (click)="closeMenu()">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__text">
+        <span class="brand__name">Dr. Scrub</span>
+        <span class="brand__tag">{{ site.serviceAreaShort }}</span>
+      </span>
+    </a>
+
+    <button
+      type="button"
+      class="nav-toggle"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="site-nav"
+      (click)="toggleMenu()"
+    >
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+      <span class="sr-only">Toggle navigation</span>
+    </button>
+
+    <nav id="site-nav" class="nav" [class.nav--open]="menuOpen()" aria-label="Primary">
+      <a class="nav__link" href="#services" (click)="closeMenu()">Services</a>
+      <a class="nav__link" href="#proof" (click)="closeMenu()">Results</a>
+      <a class="nav__link" href="#clients" (click)="closeMenu()">Clients</a>
+      <a class="nav__link" href="#film" (click)="closeMenu()">Film</a>
+      <a class="nav__cta" href="#quote" (click)="closeMenu()">Get a quote</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="top">
+    <div class="hero__media" #heroMedia>
+      <img
+        [src]="site.media.hero"
+        width="2000"
+        height="1333"
+        fetchpriority="high"
+        alt="Professional floor machine and equipment used by Dr. Scrub"
+        class="hero__img"
+      />
+      <div class="hero__veil" aria-hidden="true"></div>
+      <div class="hero__grid" aria-hidden="true"></div>
+      <div class="hero__shine" aria-hidden="true"></div>
+    </div>
+
+    <div class="shell hero__content" @heroEnter>
+      <p class="hero__eyebrow">
+        <span class="hero__dot" aria-hidden="true"></span>
+        Commercial &amp; residential · {{ site.serviceArea }}
+      </p>
+      <h1 class="hero__title">
+        Floors so clean,
+        <span class="hero__title-accent">they throw light.</span>
+      </h1>
+      <p class="hero__lede">{{ site.subhead }}</p>
+
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#quote">Schedule a walkthrough</a>
+        <a class="btn btn--ghost" href="#services">Explore services</a>
+      </div>
+
+      <dl class="hero__stats" aria-label="Service highlights">
+        <div class="hero__stat">
+          <dt class="hero__stat-term">Programs</dt>
+          <dd class="hero__stat-def">Strip / wax / maintain</dd>
+        </div>
+        <div class="hero__stat">
+          <dt class="hero__stat-term">Footprint</dt>
+          <dd class="hero__stat-def">Commercial &amp; residential</dd>
+        </div>
+        <div class="hero__stat">
+          <dt class="hero__stat-term">Standard</dt>
+          <dd class="hero__stat-def">High-gloss, safety-first</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="shell">
+      <header class="services__head" data-reveal data-reveal-delay="0">
+        <p class="eyebrow">What we do</p>
+        <h2 class="title">Finish systems built for real traffic.</h2>
+        <p class="lede">
+          From full strip-outs to disciplined maintenance, we keep VCT, LVT, and resilient surfaces performing under
+          real traffic — in <strong>commercial</strong> buildings and <strong>residential</strong> homes throughout
+          <strong>{{ site.serviceArea }}</strong>.
+        </p>
+      </header>
+
+      <div class="services__grid" @cardStagger>
+        @for (svc of site.services; track svc.key) {
+          <article class="card">
+            <div class="card__glow" aria-hidden="true"></div>
+            <div class="card__icon" [attr.data-key]="svc.key" aria-hidden="true"></div>
+            <h3 class="card__title">{{ svc.title }}</h3>
+            <p class="card__blurb">{{ svc.blurb }}</p>
+            <ul class="card__list">
+              @for (pt of svc.points; track pt) {
+                <li>{{ pt }}</li>
+              }
+            </ul>
+          </article>
+        }
+      </div>
+
+      <div class="markets" data-reveal data-reveal-delay="120">
+        <p class="markets__label">Who we serve &amp; where we’re based</p>
+        <div class="markets__chips">
+          @for (m of site.markets; track m) {
+            <span class="chip">{{ m }}</span>
+          }
+          <span class="chip chip--accent">{{ site.serviceArea }}</span>
+        </div>
+        <p class="markets__note">
+          Commercial sites and private residences — service area: <strong>{{ site.serviceArea }}</strong> (northeastern
+          United States).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="proof" id="proof">
+    <div class="shell proof__inner">
+      <div class="proof__copy" data-reveal data-reveal-delay="0">
+        <p class="eyebrow">Proof, not promises</p>
+        <h2 class="title">Drag the handle. See the swing.</h2>
+        <p class="lede">
+          Real-world floors pick up film, abrasion, and “ghost” rectangles from fixtures. We rebuild clarity so your
+          space reads intentional again.
+        </p>
+      </div>
+
+      <figure
+        class="compare"
+        data-reveal
+        data-reveal-delay="80"
+        #compareRoot
+        [style.--pos]="comparePosition() + '%'"
+        aria-label="Before and after floor comparison slider"
+      >
+        <div class="compare__media" (pointerdown)="onComparePointerDown($event)">
+          <img
+            draggable="false"
+            [src]="site.media.after"
+            alt="Floor after service — finished and polished"
+            class="compare__base"
+          />
+          <div class="compare__clip">
+            <img
+              draggable="false"
+              [src]="site.media.before"
+              alt="Floor before service — needs treatment"
+              class="compare__top"
+            />
+          </div>
+          <div class="compare__handle" [style.left.%]="comparePosition()">
+            <span class="compare__knob" aria-hidden="true"></span>
+          </div>
+        </div>
+        <figcaption class="compare__caption">
+          <span class="pill pill--before">Before</span>
+          <span class="pill pill--after">After</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="film" id="film">
+    <div class="shell film__inner">
+      <div class="film__copy" data-reveal data-reveal-delay="0">
+        <p class="eyebrow">Field footage</p>
+        <h2 class="title">On-site process &amp; finished results.</h2>
+        <p class="lede">
+          Straightforward, well-lit video helps property teams and GCs understand how we work — and what “done” looks
+          like on your floor.
+        </p>
+        <ul class="film__bullets">
+          <li>Process clip: crew, equipment, and finish application in real conditions</li>
+          <li>Results clip: walk-off gloss and clarity after the program is complete</li>
+        </ul>
+      </div>
+
+      <div class="film__stage" data-reveal data-reveal-delay="100">
+        @if (hasLocalVideos()) {
+          <div class="film__dual">
+            @if (showMakeVideo()) {
+              <figure class="film__vid">
+                <div class="frame frame--video" [class.frame--loaded]="makeVideoReady()">
+                  <video
+                    [src]="site.media.videoMake"
+                    controls
+                    playsinline
+                    preload="metadata"
+                    title="Dr. Scrub — on-site floor care process"
+                    (loadeddata)="onMakeVideoLoaded()"
+                  >
+                    Your browser does not support HTML5 video.
+                  </video>
+                </div>
+              </figure>
+            }
+            @if (showDoneVideo()) {
+              <figure class="film__vid">
+                <div class="frame frame--video" [class.frame--loaded]="doneVideoReady()">
+                  <video
+                    [src]="site.media.videoDone"
+                    controls
+                    playsinline
+                    preload="metadata"
+                    title="Dr. Scrub — completed floor finish"
+                    (loadeddata)="onDoneVideoLoaded()"
+                  >
+                    Your browser does not support HTML5 video.
+                  </video>
+                </div>
+              </figure>
+            }
+          </div>
+        } @else {
+          <div class="frame frame--placeholder">
+            <div class="frame__shine" aria-hidden="true"></div>
+            <p class="frame__hint">
+              Add your process and results MP4s to <code>src/app/img</code> and point <code>media.videoMake</code> /
+              <code>media.videoDone</code> in <code>site.config.ts</code> to the correct filenames.
+            </p>
+          </div>
+        }
+        <p class="film__note">
+          Tip: steady shots and even lighting read as premium — let the reflection on the floor do the selling.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="clients" id="clients">
+    <div class="shell">
+      <header class="clients__head" data-reveal data-reveal-delay="0">
+        <p class="eyebrow">Trusted alongside</p>
+        <h2 class="title">Household names. Same exacting standard.</h2>
+        <p class="lede">
+          Dr. Scrub has supported programs connected to leading retailers and operators — direct or alongside partner
+          teams — for both <strong>commercial</strong> and <strong>residential</strong> work across
+          <strong>{{ site.serviceArea }}</strong>.
+        </p>
+      </header>
+
+      <div class="marquee" aria-hidden="true" @marqueeEnter>
+        <div class="marquee__track">
+          @for (c of marqueeItems; track $index) {
+            <span class="marquee__item">{{ c }}</span>
+          }
+        </div>
+      </div>
+
+      <p class="clients__fineprint" data-reveal data-reveal-delay="120">
+        Logos are used for experience context; all trademarks belong to their owners.
+      </p>
+    </div>
+  </section>
+
+  <footer class="footer" id="quote">
+    <div class="shell footer__grid" @footerRise>
+      <div class="footer__brand">
+        <p class="footer__eyebrow">Dr. Scrub</p>
+        <h2 class="footer__title">Let’s spec a finish that survives your busiest Tuesday.</h2>
+        <p class="footer__lede">
+          Share square footage, surface type, and timeline — for <strong>commercial</strong> or
+          <strong>residential</strong> jobs in <strong>{{ site.serviceArea }}</strong>, we’ll route the right crew,
+          chemistry, and cadence.
+        </p>
+      </div>
+      <div class="footer__panel">
+        <p class="footer__label">Start here</p>
+        <a class="footer__cta" href="mailto:hello@drscrub.example?subject=Dr.%20Scrub%20%E2%80%94%20Quote%20request"
+          >hello&#64;drscrub.example</a
+        >
+        <p class="footer__hint">Replace with your real email or a form link when ready.</p>
+        <div class="footer__meta">
+          <span class="chip">{{ site.markets[0] }}</span>
+          <span class="chip">{{ site.markets[1] }}</span>
+          <span class="chip chip--hot">{{ site.serviceAreaShort }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="shell footer__bar">
+      <p class="footer__legal">© {{ year }} {{ site.brand }}. Crafted for high-traffic shine.</p>
+      <a class="footer__top" href="#top">Back to top</a>
+    </div>
+  </footer>
+</main>
