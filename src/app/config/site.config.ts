@@ -7,7 +7,7 @@ export const SITE_CONFIG = {
   creditName: 'Pedro Calisto',
   creditLinkedInUrl: 'https://www.linkedin.com/in/pedrogcalisto',
   brand: 'Dr. Scrub',
-  logoUrl: '/img/logo.png',
+  logoUrl: 'img/logo.png',
   serviceArea: 'New England, United States',
   serviceAreaShort: 'New England, USA',
   tagline: 'Mirror-finish floors. Zero drama.',
