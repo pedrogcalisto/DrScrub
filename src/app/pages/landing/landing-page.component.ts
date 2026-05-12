@@ -15,6 +15,9 @@ import lottie, { type AnimationItem } from 'lottie-web';
 import cleaningYellowHand from '../../animation/Cleaning Yellow Hand.json';
 import { SITE_CONFIG } from '../../config/site.config';
 
+/** Must match how many times the client list is repeated in `marqueeItems`. */
+const MARQUEE_SEGMENTS = 4;
+
 @Component({
   selector: 'app-landing-page',
   standalone: true,
@@ -88,14 +91,19 @@ export class LandingPageComponent {
   readonly site = SITE_CONFIG;
   readonly year = new Date().getFullYear();
 
-  readonly mailtoQuoteHref = `mailto:${SITE_CONFIG.contact.email}?subject=${encodeURIComponent('Dr. Scrub — Quote request')}`;
-
   readonly telHref = `tel:${SITE_CONFIG.contact.phoneE164}`;
+
+  readonly mapsHref =
+    'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent(`${SITE_CONFIG.contact.addressLine1}, ${SITE_CONFIG.contact.addressLine2}`);
 
   readonly smsQuoteHref = `sms:${SITE_CONFIG.contact.phoneE164}&body=${encodeURIComponent(
     `Hi ${SITE_CONFIG.brand} — I'd like a quote for floor care in ${SITE_CONFIG.serviceAreaShort}.`,
   )}`;
-  readonly marqueeItems = [...SITE_CONFIG.clients, ...SITE_CONFIG.clients];
+  readonly marqueeItems = [...Array(MARQUEE_SEGMENTS)].flatMap(() => [...SITE_CONFIG.clients]);
+
+  readonly marqueeOffsetPx = signal(0);
+  readonly marqueeTrackTransform = computed(() => `translate3d(${this.marqueeOffsetPx()}px, 0, 0)`);
 
   readonly scrolled = signal(false);
   readonly menuOpen = signal(false);
@@ -103,6 +111,16 @@ export class LandingPageComponent {
   readonly comparePosition = signal(52);
   private readonly compareDragging = signal(false);
   private readonly compareRoot = viewChild<ElementRef<HTMLElement>>('compareRoot');
+  private readonly marqueeTrack = viewChild<ElementRef<HTMLElement>>('marqueeTrack');
+
+  private readonly marqueeLoopWidth = signal(0);
+  private readonly marqueeDragging = signal(false);
+  private marqueeDragPointerId: number | null = null;
+  private marqueeDragStartClientX = 0;
+  private marqueeDragStartOffset = 0;
+  private marqueeResizeObserver: ResizeObserver | undefined;
+  private marqueeTickRaf = 0;
+  private marqueeLastTickMs = 0;
 
   private readonly heroMedia = viewChild<ElementRef<HTMLElement>>('heroMedia');
   private readonly lottieBackTop = viewChild<ElementRef<HTMLElement>>('lottieBackTop');
@@ -123,14 +141,21 @@ export class LandingPageComponent {
     afterNextRender(() => {
       this.initScrollReveals(this.host.nativeElement);
       this.applyHeroParallax();
+      this.initMarqueeScroll();
     });
     this.destroyRef.onDestroy(() => {
       if (this.scrollRafId !== 0) {
         cancelAnimationFrame(this.scrollRafId);
       }
+      if (this.marqueeTickRaf !== 0) {
+        cancelAnimationFrame(this.marqueeTickRaf);
+        this.marqueeTickRaf = 0;
+      }
       if (this.backToTopFxTimer !== undefined) {
         window.clearTimeout(this.backToTopFxTimer);
       }
+      this.marqueeResizeObserver?.disconnect();
+      this.marqueeResizeObserver = undefined;
       this.destroyLottie();
     });
   }
@@ -298,6 +323,95 @@ export class LandingPageComponent {
     const rect = (media ?? root).getBoundingClientRect();
     const x = Math.min(Math.max(clientX - rect.left, 0), rect.width);
     this.comparePosition.set(Math.round((x / rect.width) * 100));
+  }
+
+  onMarqueePointerDown(event: PointerEvent): void {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    const host = event.currentTarget as HTMLElement;
+    this.marqueeDragPointerId = event.pointerId;
+    this.marqueeDragStartClientX = event.clientX;
+    this.marqueeDragStartOffset = this.marqueeOffsetPx();
+    this.marqueeDragging.set(true);
+    try {
+      host.setPointerCapture(event.pointerId);
+    } catch {
+      /* ignore */
+    }
+    event.preventDefault();
+  }
+
+  onMarqueePointerMove(event: PointerEvent): void {
+    if (!this.marqueeDragging() || event.pointerId !== this.marqueeDragPointerId) return;
+    const loopW = this.marqueeLoopWidth();
+    if (loopW <= 0) return;
+    event.preventDefault();
+    const dx = event.clientX - this.marqueeDragStartClientX;
+    this.marqueeOffsetPx.set(this.wrapMarqueeOffset(this.marqueeDragStartOffset + dx, loopW));
+  }
+
+  onMarqueePointerUp(event: PointerEvent): void {
+    if (this.marqueeDragPointerId === null || event.pointerId !== this.marqueeDragPointerId) return;
+    const host = event.currentTarget as HTMLElement;
+    try {
+      host.releasePointerCapture(event.pointerId);
+    } catch {
+      /* ignore */
+    }
+    this.marqueeDragging.set(false);
+    this.marqueeDragPointerId = null;
+  }
+
+  private wrapMarqueeOffset(offset: number, loopW: number): number {
+    if (loopW <= 0) return offset;
+    let o = offset;
+    while (o <= -loopW) o += loopW;
+    while (o > 0) o -= loopW;
+    return o;
+  }
+
+  private initMarqueeScroll(): void {
+    const trackEl = () => this.marqueeTrack()?.nativeElement;
+
+    const measure = (): void => {
+      const el = trackEl();
+      if (!el || el.scrollWidth < 2) return;
+      const w = el.scrollWidth / MARQUEE_SEGMENTS;
+      if (w <= 0) return;
+      this.marqueeLoopWidth.set(w);
+      this.marqueeOffsetPx.update((o) => this.wrapMarqueeOffset(o, w));
+    };
+
+    requestAnimationFrame(() => requestAnimationFrame(measure));
+
+    this.marqueeResizeObserver = new ResizeObserver(measure);
+    queueMicrotask(() => {
+      const el = trackEl();
+      if (el) {
+        this.marqueeResizeObserver?.observe(el);
+      }
+    });
+
+    this.marqueeLastTickMs = performance.now();
+    const tick = (now: number): void => {
+      this.marqueeTickRaf = requestAnimationFrame(tick);
+      const loopW = this.marqueeLoopWidth();
+      if (loopW <= 0) {
+        measure();
+        return;
+      }
+      if (!this.marqueeDragging()) {
+        const dtMs = now - this.marqueeLastTickMs;
+        this.marqueeLastTickMs = now;
+        const dt = Math.min(0.064, Math.max(0, dtMs / 1000));
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const speed = reduced ? 12 : 30;
+        this.marqueeOffsetPx.update((o) => this.wrapMarqueeOffset(o - speed * dt, loopW));
+      } else {
+        this.marqueeLastTickMs = now;
+      }
+    };
+
+    this.marqueeTickRaf = requestAnimationFrame(tick);
   }
 
   private applyHeroParallax(): void {

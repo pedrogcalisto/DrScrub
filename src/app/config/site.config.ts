@@ -5,7 +5,9 @@ function mediaFile(filename: string): string {
 export const SITE_CONFIG = {
   appVersion: '2.5',
   creditName: 'Pedro Calisto',
+  creditLinkedInUrl: 'https://www.linkedin.com/in/pedrogcalisto',
   brand: 'Dr. Scrub',
+  logoUrl: '/img/logo.png',
   serviceArea: 'New England, United States',
   serviceAreaShort: 'New England, USA',
   tagline: 'Mirror-finish floors. Zero drama.',
@@ -29,9 +31,10 @@ export const SITE_CONFIG = {
   ],
   markets: ['Commercial', 'Residential'],
   contact: {
-    email: 'hello@drscrub.example',
-    phoneDisplay: '+1 (617) 555-0123',
-    phoneE164: '+16175550123',
+    phoneDisplay: '(774) 245-4980',
+    phoneE164: '+17742454980',
+    addressLine1: '15 Fruit Street',
+    addressLine2: 'Milford, Massachusetts',
   },
   clients: [
     'AutoZone',

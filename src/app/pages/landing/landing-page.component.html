@@ -5,7 +5,14 @@
 >
   <div class="shell site-header__inner">
     <a class="brand" href="#top" (click)="closeMenu()">
-      <span class="brand__mark" aria-hidden="true"></span>
+      <img
+        class="brand__logo"
+        [src]="site.logoUrl"
+        width="120"
+        height="40"
+        alt=""
+        decoding="async"
+      />
       <span class="brand__text">
         <span class="brand__name">Dr. Scrub</span>
         <span class="brand__tag">{{ site.serviceAreaShort }}</span>
@@ -260,23 +267,38 @@
         </p>
       </header>
 
-      <div class="marquee" aria-hidden="true" @marqueeEnter>
-        <div class="marquee__track">
-          @for (c of marqueeItems; track $index) {
-            <span class="marquee__item">{{ c }}</span>
-          }
+      <div
+        class="marquee-drum"
+        aria-hidden="true"
+        (pointerdown)="onMarqueePointerDown($event)"
+        (pointermove)="onMarqueePointerMove($event)"
+        (pointerup)="onMarqueePointerUp($event)"
+        (pointercancel)="onMarqueePointerUp($event)"
+      >
+        <div class="marquee-tilt">
+          <div class="marquee" @marqueeEnter>
+            <div class="marquee__track" #marqueeTrack [style.transform]="marqueeTrackTransform()">
+              @for (c of marqueeItems; track $index) {
+                <span class="marquee__item">{{ c }}</span>
+              }
+            </div>
+          </div>
         </div>
       </div>
-
-      <p class="clients__fineprint" data-reveal data-reveal-delay="120">
-        Logos are used for experience context; all trademarks belong to their owners.
-      </p>
     </div>
   </section>
 
   <footer class="footer" id="quote">
     <div class="shell footer__grid" @footerRise>
       <div class="footer__brand">
+        <img
+          class="footer__logo"
+          [src]="site.logoUrl"
+          width="160"
+          height="52"
+          alt=""
+          decoding="async"
+        />
         <p class="footer__eyebrow">Dr. Scrub</p>
         <h2 class="footer__title">Let’s spec a finish that survives your busiest Tuesday.</h2>
         <p class="footer__lede">
@@ -286,21 +308,29 @@
         </p>
       </div>
       <div class="footer__panel">
-        <p class="footer__label">Contact us</p>
+        <p class="footer__label">Contact</p>
+        <p class="footer__contact-lede">
+          Reach us by phone or text — share square footage, surface type, and timeline, and we’ll follow up as soon as
+          we’re off the floor.
+        </p>
         <div class="footer__contact">
-          <div class="footer__contact-row">
-            <span class="footer__contact-key">Email</span>
-            <a class="footer__cta" [href]="mailtoQuoteHref">{{ site.contact.email }}</a>
-          </div>
-          <div class="footer__contact-row">
+          <a class="footer__contact-card" [href]="telHref">
             <span class="footer__contact-key">Phone</span>
-            <span class="footer__phone">{{ site.contact.phoneDisplay }}</span>
-            <span class="footer__phone-note">U.S. · NANP (+1)</span>
-          </div>
-          <div class="footer__actions" role="group" aria-label="Phone actions">
-            <a class="footer__action" [href]="telHref">Call</a>
-            <a class="footer__action" [href]="smsQuoteHref">Text or iMessage</a>
-          </div>
+            <span class="footer__contact-value">{{ site.contact.phoneDisplay }}</span>
+            <span class="footer__contact-hint">Tap to call · U.S.</span>
+          </a>
+          <a class="footer__contact-card footer__contact-card--map" [href]="mapsHref" rel="noopener noreferrer" target="_blank">
+            <span class="footer__contact-key">Address</span>
+            <address class="footer__contact-value footer__contact-value--address">
+              {{ site.contact.addressLine1 }}<br />
+              {{ site.contact.addressLine2 }}
+            </address>
+            <span class="footer__contact-hint">Open in Maps</span>
+          </a>
+        </div>
+        <div class="footer__actions" role="group" aria-label="Phone actions">
+          <a class="footer__action" [href]="telHref">Call</a>
+          <a class="footer__action" [href]="smsQuoteHref">Text</a>
         </div>
         <div class="footer__meta">
           <span class="chip">{{ site.markets[0] }}</span>
@@ -322,9 +352,18 @@
 
 <div
   class="app-build-meta"
-  [attr.title]="'Release v' + site.appVersion + ' · ' + site.creditName"
-  [attr.aria-label]="'Site version ' + site.appVersion + ', ' + site.creditName"
+  role="group"
+  [attr.title]="'Release v' + site.appVersion + ' · ' + site.creditName + ' (LinkedIn)'"
+  [attr.aria-label]="'Build version ' + site.appVersion + ', credit ' + site.creditName + ', opens LinkedIn profile'"
 >
   <span class="app-version">v{{ site.appVersion }}</span>
-  <span class="app-credit">{{ site.creditName }}</span>
+  <a
+    class="app-credit"
+    [href]="site.creditLinkedInUrl"
+    target="_blank"
+    rel="noopener noreferrer"
+    [attr.aria-label]="site.creditName + ' — LinkedIn profile (opens in new tab)'"
+  >
+    {{ site.creditName }}
+  </a>
 </div>
