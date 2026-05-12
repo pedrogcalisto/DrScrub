@@ -173,8 +173,22 @@
           </div>
         </div>
         <figcaption class="compare__caption">
-          <span class="pill pill--before">Before</span>
-          <span class="pill pill--after">After</span>
+          <button
+            type="button"
+            class="pill pill--before compare__pill-btn"
+            (click)="onCompareShowBefore($event)"
+            aria-label="Show before photo full width"
+          >
+            Before
+          </button>
+          <button
+            type="button"
+            class="pill pill--after compare__pill-btn"
+            (click)="onCompareShowAfter($event)"
+            aria-label="Show after photo full width"
+          >
+            After
+          </button>
         </figcaption>
       </figure>
     </div>

@@ -195,6 +195,16 @@ export class LandingPageComponent {
     this.updateCompareFromClientX(event.clientX);
   }
 
+  onCompareShowBefore(event: Event): void {
+    event.preventDefault();
+    this.comparePosition.set(100);
+  }
+
+  onCompareShowAfter(event: Event): void {
+    event.preventDefault();
+    this.comparePosition.set(0);
+  }
+
   onMakeVideoLoaded(): void {
     this.makeVideoReady.set(true);
   }

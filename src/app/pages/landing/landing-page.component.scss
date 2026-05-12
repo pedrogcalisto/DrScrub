@@ -677,6 +677,7 @@
   inset: 0;
   width: 100%;
   clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+  transition: clip-path 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .compare__top {
@@ -696,6 +697,14 @@
   background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 15% 85%, rgba(255, 255, 255, 0));
   box-shadow: 0 0 30px rgba(30, 107, 184, 0.35);
   pointer-events: none;
+  transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compare__clip,
+  .compare__handle {
+    transition-duration: 0.05s;
+  }
 }
 
 .compare__knob {
@@ -719,6 +728,24 @@
   margin-top: 0.85rem;
   font-size: 0.82rem;
   color: rgba(18, 40, 61, 0.55);
+}
+
+.compare__pill-btn {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &:focus-visible {
+    outline: 2px solid #1e6bb8;
+    outline-offset: 3px;
+  }
+
+  &:hover {
+    filter: brightness(1.03);
+  }
 }
 
 .pill {
